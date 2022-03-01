@@ -1,11 +1,22 @@
 package com.example.security.securitypractice.controller;
 
+import com.example.security.securitypractice.model.User;
+import com.example.security.securitypractice.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 public class IndexController {
+
+    @Autowired
+    UserRepository userRepository;
+
+    @Autowired
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @GetMapping({"","/"})
     public String index(){
@@ -37,20 +48,27 @@ public class IndexController {
     }
 
     // 시큐리티가 해당 주소 낚아채버리고있음
-    @GetMapping("/login")
-    public String login(){
+    @GetMapping("/login-form")
+    public String loginForm(){
         return "loginForm";
     }
 
-    @GetMapping("/join")
-    public String join(){
-        return "join";
+    @GetMapping("/join-form")
+    public String joinFrom(){
+        return "joinForm";
     }
 
-    @GetMapping("/joinProc")
-    public @ResponseBody String joinProc(){
-        return "회원가입 완료됨";
+    @PostMapping("/join")
+    public String join(User user){
+        System.out.println(user);
+        user.setRole("ROLE_USER");
+        String rawPassword = user.getPassword();
+        String encPassword = bCryptPasswordEncoder.encode(rawPassword);
+        user.setPassword(encPassword);
+        userRepository.save(user); // 비밀번호 encoded 안하면 시큐리티 로그인 할 수 없음
+        return "redirect:/login-form";
     }
+
 }
 
 
