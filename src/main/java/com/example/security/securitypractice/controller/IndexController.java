@@ -4,6 +4,8 @@ import com.example.security.securitypractice.model.User;
 import com.example.security.securitypractice.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -75,6 +77,14 @@ public class IndexController {
     @Secured("ROLE_ADMIN")// 특정 메서드에 간단하게 역할 걸어주는건ㅅ
     @GetMapping("/info")
     public @ResponseBody String info(){
+        return "개인정보";
+    }
+    //보통 글로벌로 거는데 특정한거만 걸고싶을때
+    // @EnableGlobalMethodSecurity(prePostEnable = true)
+    @PreAuthorize("hasRole('ROLE_MANAGER')or hasRole('ROLE_ADMIN')") //여러개 걸때
+    // @PostAuthorize() -> 메서드가 종료되고 나서 확인할 때
+    @GetMapping("/data")
+    public @ResponseBody String data(){
         return "개인정보";
     }
 
