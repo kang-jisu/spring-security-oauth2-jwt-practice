@@ -3,6 +3,8 @@ package com.example.security.securitypractice.controller;
 import com.example.security.securitypractice.model.User;
 import com.example.security.securitypractice.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,13 +29,13 @@ public class IndexController {
 
     // 로그인 한사람만 보게 하고 싶음
     @GetMapping("/user")
-    public String user(){
+    public @ResponseBody String user(){
         return "user";
     }
 
     //admin만 하ㅗ싶음
     @GetMapping("/admin")
-    public String admin(){
+    public @ResponseBody String admin(){
         return "admin";
     }
     @GetMapping("/member")
@@ -43,7 +45,7 @@ public class IndexController {
 
     //매니저만 하고싶음
     @GetMapping("/manager")
-    public String manager(){
+    public @ResponseBody String manager(){
         return "manager";
     }
 
@@ -67,6 +69,13 @@ public class IndexController {
         user.setPassword(encPassword);
         userRepository.save(user); // 비밀번호 encoded 안하면 시큐리티 로그인 할 수 없음
         return "redirect:/login-form";
+    }
+
+    // @EnableGlobalMethodSecurity(securedEnabled = true)
+    @Secured("ROLE_ADMIN")// 특정 메서드에 간단하게 역할 걸어주는건ㅅ
+    @GetMapping("/info")
+    public @ResponseBody String info(){
+        return "개인정보";
     }
 
 }
