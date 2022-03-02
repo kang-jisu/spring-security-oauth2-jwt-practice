@@ -84,7 +84,8 @@ public class IndexController {
 
     // 로그인 한사람만 보게 하고 싶음
     @GetMapping("/user")
-    public @ResponseBody String user(){
+    public @ResponseBody String user(@AuthenticationPrincipal PrincipalDetails principalDetails){
+        System.out.println(principalDetails.getUser());
         return "user";
     }
 

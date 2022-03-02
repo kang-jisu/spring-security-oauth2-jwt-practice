@@ -5,9 +5,11 @@ import com.example.security.securitypractice.model.User;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
 
 // 시큐리티가 login 주소 요청이 오면 낚아채서 로그인을 진행시킨다.
 // 로그인 진행이 완료가 되면 시큐리티 session을 만들어준다 .(Security ContextHolder)
@@ -17,12 +19,29 @@ import java.util.Collection;
 // Security Session => Authentication => UserDetails => 이걸 우리가 구현하기위해서 만든거 PrincipalDetails
 
 @Getter
-public class PrincipalDetails implements UserDetails {
+public class PrincipalDetails implements UserDetails, OAuth2User {
 
     private User user;
+    private Map<String, Object> attributes;
 
+    //일반 로그인
     public PrincipalDetails(User user) {
         this.user = user;
+    }
+
+    //oauth 로그인
+    public PrincipalDetails(User user, Map<String, Object> attributes) {
+        this.user = user;
+        this.attributes = attributes;
+    }
+    @Override
+    public <A> A getAttribute(String name) {
+        return OAuth2User.super.getAttribute(name);
+    }
+
+    @Override
+    public Map<String, Object> getAttributes() {
+        return null;
     }
 
     // 해당 유저의 권한을 리턴하는 곳
@@ -68,5 +87,10 @@ public class PrincipalDetails implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    @Override
+    public String getName() {
+        return null; // 중요하지않음. attributes.get("sub")
     }
 }
