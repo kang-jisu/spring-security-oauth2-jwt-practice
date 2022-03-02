@@ -2,6 +2,7 @@ package com.example.security.securitypractice.auth;
 
 
 import com.example.security.securitypractice.model.User;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -15,7 +16,7 @@ import java.util.Collection;
 // User 오브젝트 타입도 정해져있음 -> UserDetails 타입 객체
 // Security Session => Authentication => UserDetails => 이걸 우리가 구현하기위해서 만든거 PrincipalDetails
 
-
+@Getter
 public class PrincipalDetails implements UserDetails {
 
     private User user;

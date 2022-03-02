@@ -1,5 +1,6 @@
 package com.example.security.securitypractice.controller;
 
+import com.example.security.securitypractice.auth.PrincipalDetails;
 import com.example.security.securitypractice.model.User;
 import com.example.security.securitypractice.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,7 +8,11 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,6 +26,54 @@ public class IndexController {
 
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    @GetMapping("/info/login-user")
+    public @ResponseBody String infoLoginUser(Authentication authentication, @AuthenticationPrincipal UserDetails userDetails, @AuthenticationPrincipal PrincipalDetails principal){
+
+        //authentication.getPrincipal == userDetails(기본값) == PrincipalDetails (커스텀)
+        // 일반 로그인 확인
+        System.out.println("/test/login ==============");
+        System.out.println(authentication.getPrincipal());
+        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
+        System.out.println(principalDetails.getUser()); // principalDetails의 생성자 User를 DI로 넣어줌
+        System.out.println("/test/login end==============");
+
+
+        System.out.println(userDetails.getUsername());
+        System.out.println(principal.getUser());
+
+        return "세션정보확인하기";
+    }
+    @GetMapping("/info/oauth-login-user")
+    public @ResponseBody String infoOAuthLoginUser (Authentication authentication, @AuthenticationPrincipal OAuth2User oAuth){
+        // service.loadUser에서 super(userRequest)한거랑 같은 값
+        OAuth2User oAuth2User = (OAuth2User)authentication.getPrincipal();
+        System.out.println(oAuth2User.getAttributes());
+        System.out.println(oAuth2User.getName());
+        System.out.println("==============");
+
+        // 같음
+        System.out.println("oAuth2User:"+ oAuth.getAttributes());
+        return "oauth 세션 정보 확인 ";
+    }
+
+
+    public @ResponseBody String loginTest(Authentication authentication, @AuthenticationPrincipal UserDetails userDetails, @AuthenticationPrincipal PrincipalDetails principal){
+
+        //authentication.getPrincipal == userDetails(기본값) == PrincipalDetails (커스텀)
+        // 일반 로그인 확인
+        System.out.println("/test/login ==============");
+        System.out.println(authentication.getPrincipal());
+        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
+        System.out.println(principalDetails.getUser()); // principalDetails의 생성자 User를 DI로 넣어줌
+        System.out.println("/test/login end==============");
+
+
+        System.out.println(userDetails.getUsername());
+        System.out.println(principal.getUser());
+
+        return "세션정보확인하기";
+    }
 
     @GetMapping({"","/"})
     public String index(){
