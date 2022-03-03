@@ -2,30 +2,26 @@ package com.example.security.securitypractice.oauth.provider;
 
 import java.util.Map;
 
-public class NaverUserInfo implements OAuth2UserInfo{
-    private Map<String, Object> attributes; // oauth2User.getAttributes()
-
+public class NaverUserInfo extends OAuth2UserInfo {
     public NaverUserInfo(Map<String, Object> attributes) {
-        this.attributes = attributes;
+        super(attributes);
     }
 
     @Override
     public String getProviderId() {
-        return (String) attributes.get("id");
-    }
-
-    @Override
-    public String getProvider() {
-        return "naver";
+        Map<String, Object> response = (Map<String, Object>) attributes.get("response");
+        return (String) response.get("id");
     }
 
     @Override
     public String getEmail() {
-        return (String) attributes.get("email");
+        Map<String, Object> response = (Map<String, Object>) attributes.get("response");
+        return (String) response.get("email");
     }
 
     @Override
     public String getName() {
-        return (String) attributes.get("nickname");
+        Map<String, Object> response = (Map<String, Object>) attributes.get("response");
+        return (String) response.get("name");
     }
 }

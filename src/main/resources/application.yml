@@ -20,3 +20,55 @@ spring:
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     show-sql: true
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id:
+            client-secret:
+            redirectUri: "{baseUrl}/oauth2/callback/{registrationId}"
+            scope:
+              - email
+              - profile
+          kakao:
+            client-id:
+            scope:
+              - profile_nickname
+              - account_email
+            clientName: Kakao
+            clientAuthenticationMethod: post
+            authorizationGrantType: authorization_code
+            redirectUri: http://localhost:8080/oauth2/callback/kakao
+          naver:
+            clientId:
+            clientSecret:
+            clientAuthenticationMethod: post
+            authorizationGrantType: authorization_code
+            redirectUri: http://localhost:8080/oauth2/callback/naver # 서버에서 인증 마치고 돌악나ㅡㄴ uri
+            scope:
+              - nickname
+              - email
+              - profile_image
+            clientName: Naver
+        provider:
+          kakao:
+            authorizationUri: https://kauth.kakao.com/oauth/authorize
+            tokenUri: https://kauth.kakao.com/oauth/token
+            userInfoUri: https://kapi.kakao.com/v2/user/me
+            userNameAttribute: id #kakao 회원 조회시 반환되는 JSON 형태 때문
+          naver:
+            authorizationUri: https://nid.naver.com/oauth2.0/authorize
+            tokenUri: https://nid.naver.com/oauth2.0/token
+            userInfoUri: https://openapi.naver.com/v1/nid/me
+            userNameAttribute: response #naver 회원 조회시 반환되는 JSON 형태 때문
+app:
+  auth:
+    tokenSecret: 04ca023b39512e46d0c2cf4b48d5aac61d34302994c87ed4eff225dcf3b0a218739f3897051a057f9b846a69ea2927a587044164b7bae5e1306219d50b588cb1
+    tokenExpirationMsec: 180000
+  cors:
+    allowedOrigins: http://localhost:3000,http://localhost:8080
+  oauth2:
+    authorizedRedirectUris:
+      - http://localhost:3000/oauth2/redirect

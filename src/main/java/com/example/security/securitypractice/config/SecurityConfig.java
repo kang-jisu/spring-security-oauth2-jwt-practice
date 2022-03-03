@@ -1,14 +1,20 @@
 package com.example.security.securitypractice.config;
 
-import com.example.security.securitypractice.oauth.PrincipalOauth2UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.security.securitypractice.filter.TokenAuthenticationFilter;
+import com.example.security.securitypractice.oauth.*;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 // 1. 코드 받기(인증) 2. 엑세스토큰(권한)
 // 3. 사용자 프로필 정보를 가져옴
@@ -18,38 +24,91 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 @Configuration
 @EnableWebSecurity // 스프링 시큐리티 필터(지금 작성하는 클래스) 가 스프링 필터체인에 등록이됨
 @EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
+@RequiredArgsConstructor
 // secured 어노테이션 활성화, preAuthorize, postAuthorize 어노테이션 활성화
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
+    public static final String AUTHORIZATION_RESPONSE_BASE_URI = "/oauth2/callback/*";
+    public static final String AUTHORIZATION_REQUEST_BASE_URI = "/oauth2/authorize";
 
-    @Autowired
-    PrincipalOauth2UserService principalOauth2UserService;
+    private final CustomOAuth2UserService customOauth2UserService;
+    private final HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository;
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
+    private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
 
+    @Bean
+    public TokenAuthenticationFilter tokenAuthenticationFilter() {
+        return new TokenAuthenticationFilter();
+    }
+
+    @Bean
+    public HttpCookieOAuth2AuthorizationRequestRepository cookieOAuth2AuthoirzationRequestRepository() {
+        return new HttpCookieOAuth2AuthorizationRequestRepository();
+    }
 
     // 해당 메서드의 리턴되는 오브젝트를 IOC로 등록해줌
     @Bean
-    public BCryptPasswordEncoder encodedPwd() {
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean(BeanIds.AUTHENTICATION_MANAGER)
+    @Override
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.csrf().disable();
-        http.authorizeRequests()
+
+        http
+                .cors()
+                .and()
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                .csrf()
+                .disable()
+                .formLogin()
+                .disable()
+                .httpBasic()
+                .disable()
+                .exceptionHandling()
+                .authenticationEntryPoint(new RestAuthenticationEntryPoint())
+                .and()
+                .authorizeRequests()
                 .antMatchers("/user/**").authenticated() // 인증만 되면 들어갈 수 있는 주소
                 .antMatchers("/manager/**").hasAnyRole("ADMIN", "MANAGER")
                 .antMatchers("/admin/**").hasRole("ADMIN")
-                .anyRequest().permitAll()
+                .antMatchers("/",
+                        "/error",
+                        "favicon.ico",
+                        "/**/*.png", "/**/*.gif", "/**/*.svg", "/**/*.jpg", "/**/*.html", "/**/*.css", "/**/*.js"
+                )
+                .permitAll()
+                .antMatchers("/auth/**", "oauth2/**")
+                .permitAll()
+                .anyRequest().authenticated()
                 .and()
                 .formLogin()
-                .loginPage("/login-form")
-                .loginProcessingUrl("/login") // /login 주소가 호출이되면 시큐리티가 낚아채서 대신 로그인을 진행해준다. 컨트롤러 안만들어도됨
-                .defaultSuccessUrl("/"); // 로그인 성공하면 이 페이지로 보내줌
-
+                .disable();// 로그인 성공하면 이 페이지로 보내줌
         // oauth
         http.oauth2Login()
-                .loginPage("/login-form") // 로그인 페이지 url을 수동으로 변경해줌
+                .authorizationEndpoint()
+                .baseUri(AUTHORIZATION_REQUEST_BASE_URI) // 프론트엔드에서 맨 처음 로그인 요청을 보내는 URI -> 이 때 로그인된 정보가 없으면 딱 한번  RedirectURI로 provider가 리다이렉트 시킨다.
+                .authorizationRequestRepository(cookieOAuth2AuthoirzationRequestRepository())
+                .and()
+                .redirectionEndpoint()
+                .baseUri(AUTHORIZATION_RESPONSE_BASE_URI) // 유저가 동의하면 이 URI로 권한코드와 함께 돌아온다. 유저가 거부하면 이 URI로 error와 함께 옴
+                .and()
                 .userInfoEndpoint()
-                .userService(principalOauth2UserService);// 그리고 구글 로그인이 완료된 후 후처리 필요 -> Tip 구글로그인이 완료되면 코드가 아닌 액세스 토큰 + 사용자 프로필 정보를 한번에 받음 (oauth가 인증정보 받아오는단계까지 다 해줌)
+                .userService(customOauth2UserService)// 그리고 구글 로그인이 완료된 후 후처리 필요 -> Tip 구글로그인이 완료되면 코드가 아닌 액세스 토큰 + 사용자 프로필 정보를 한번에 받음 (oauth가 인증정보 받아오는단계까지 다 해줌)
+                .and()
+                .successHandler(oAuth2AuthenticationSuccessHandler)
+                .failureHandler(oAuth2AuthenticationFailureHandler);
+        http.addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+
     }
+
 }

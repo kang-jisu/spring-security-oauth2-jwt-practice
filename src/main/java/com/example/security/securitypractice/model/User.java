@@ -4,10 +4,9 @@ import lombok.Builder;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity
 @Data
@@ -21,13 +20,17 @@ public class User {
     private String email;
     private String role; // ROLE_USER, ROLE_ADMIN
 
-    private String provider;
+    @Column
+    @Enumerated(EnumType.STRING)
+    private ProviderType provider;
     private String providerId;
     @CreationTimestamp
     private Timestamp createDate;
 
+    private LocalDateTime lastLoginTime;
+
     @Builder
-    public User( String username, String password, String email, String role, String provider, String providerId, Timestamp createDate) {
+    public User(String username, String password, String email, String role, ProviderType provider, String providerId, Timestamp createDate, LocalDateTime lastLoginTime) {
         this.username = username;
         this.password = password;
         this.email = email;
@@ -35,6 +38,7 @@ public class User {
         this.provider = provider;
         this.providerId = providerId;
         this.createDate = createDate;
+        this.lastLoginTime = lastLoginTime;
     }
 
     public User() {

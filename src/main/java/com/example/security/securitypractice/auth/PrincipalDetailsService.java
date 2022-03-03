@@ -31,4 +31,13 @@ public class PrincipalDetailsService implements UserDetailsService {
 
         return null;
     }
+
+    public UserDetails loadUserById(Long id) {
+        User userEntity = userRepository.findById(id).orElseThrow(()-> new IllegalArgumentException());
+        if(userEntity!=null) {
+            log.info("등록된 유저 토큰트로 로그인 : {}", userEntity);
+            return new PrincipalDetails(userEntity);
+        }
+        return null;
+    }
 }

@@ -2,21 +2,15 @@ package com.example.security.securitypractice.oauth.provider;
 
 import java.util.Map;
 
-public class GoogleUserInfo implements OAuth2UserInfo{
-    private Map<String, Object> attributes; // oauth2User.getAttributes()
+public class GoogleUserInfo extends OAuth2UserInfo {
 
     public GoogleUserInfo(Map<String, Object> attributes) {
-        this.attributes = attributes;
+        super(attributes);
     }
 
     @Override
     public String getProviderId() {
         return (String) attributes.get("sub");
-    }
-
-    @Override
-    public String getProvider() {
-        return "google";
     }
 
     @Override
