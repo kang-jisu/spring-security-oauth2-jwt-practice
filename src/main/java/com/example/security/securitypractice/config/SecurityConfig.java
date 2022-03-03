@@ -1,5 +1,6 @@
 package com.example.security.securitypractice.config;
 
+import com.example.security.securitypractice.filter.MyFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -8,6 +9,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.web.filter.CorsFilter;
 
 
@@ -26,6 +28,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable();
+        http.addFilterBefore(new MyFilter(), SecurityContextPersistenceFilter.class);
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) // 세션 로그인 사용하지 않을 것
                 .and()
                 .addFilter(corsFilter)
