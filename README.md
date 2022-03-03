@@ -10,6 +10,9 @@ youtube 메타코딩 - 스프링부트 시큐리티 특강 강의를 보며 따�
 - [정리](https://github.com/kang-jisu/spring-security-oauth2-jwt-practice/issues/1)
 
 ## 2. OAuth2
+- [branch](https://github.com/kang-jisu/spring-security-oauth2-jwt-practice/tree/2-oauth2)
+- [정리](https://github.com/kang-jisu/spring-security-oauth2-jwt-practice/issues/2)
 
-## 3. JWT
-  
+## 3. JWT 
+- 정리
+  - [세션,암호화](https://github.com/kang-jisu/spring-security-oauth2-jwt-practice/issues/3)
