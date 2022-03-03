@@ -8,6 +8,9 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @Entity
 @Data
@@ -19,7 +22,7 @@ public class User {
     private String username;
     private String password;
     private String email;
-    private String role; // ROLE_USER, ROLE_ADMIN
+    private String role; // ROLE_USER, ROLE_ADMIN ,로 구분해서 여러개 들어감
 
     private String provider;
     private String providerId;
@@ -39,5 +42,12 @@ public class User {
 
     public User() {
 
+    }
+
+    public List<String> getRoles(){
+        if(role.length()>0) {
+            return Arrays.asList(role.split(","));
+        }
+        return new ArrayList<>();
     }
 }
