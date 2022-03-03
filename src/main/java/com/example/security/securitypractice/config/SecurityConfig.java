@@ -2,6 +2,8 @@ package com.example.security.securitypractice.config;
 
 import com.example.security.securitypractice.filter.MyFilter;
 import com.example.security.securitypractice.jwt.JwtAuthenticationFilter;
+import com.example.security.securitypractice.jwt.JwtAuthorizationFilter;
+import com.example.security.securitypractice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,6 +22,7 @@ import org.springframework.web.filter.CorsFilter;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final CorsFilter corsFilter;
+    private final UserRepository userRepository;
 
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
@@ -34,6 +37,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .addFilter(corsFilter)
                 .addFilter(new JwtAuthenticationFilter(authenticationManager())) // AuthenticationManager를넣어줘얗마
+                .addFilter(new JwtAuthorizationFilter(authenticationManager(), userRepository))
                 .formLogin().disable() // form태그이용한 로그인방식 사용하지 않음
                 .httpBasic().disable()
                 .authorizeRequests()
