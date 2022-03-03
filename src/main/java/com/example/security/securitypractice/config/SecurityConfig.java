@@ -1,7 +1,7 @@
 package com.example.security.securitypractice.config;
 
 import com.example.security.securitypractice.filter.MyFilter;
-import com.example.security.securitypractice.jwt.jwtAuthenticationFilter;
+import com.example.security.securitypractice.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,7 +33,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) // 세션 로그인 사용하지 않을 것
                 .and()
                 .addFilter(corsFilter)
-                .addFilter(new jwtAuthenticationFilter(authenticationManager())) // AuthenticationManager를넣어줘얗마
+                .addFilter(new JwtAuthenticationFilter(authenticationManager())) // AuthenticationManager를넣어줘얗마
                 .formLogin().disable() // form태그이용한 로그인방식 사용하지 않음
                 .httpBasic().disable()
                 .authorizeRequests()

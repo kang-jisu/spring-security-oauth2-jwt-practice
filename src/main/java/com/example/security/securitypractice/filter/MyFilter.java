@@ -21,11 +21,9 @@ public class MyFilter implements Filter {
 
         if("POST".equals(req.getMethod())){
             String headerAuth = req.getHeader("Authorization");
-            System.out.println("headerAuth = " + headerAuth);
             if ("token".equals(headerAuth)){
                 chain.doFilter(request,response);
             }else {
-                System.out.println("X");
                 chain.doFilter(request,response);
             }
         }
