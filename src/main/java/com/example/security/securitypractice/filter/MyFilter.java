@@ -26,10 +26,10 @@ public class MyFilter implements Filter {
                 chain.doFilter(request,response);
             }else {
                 System.out.println("X");
-                PrintWriter out = res.getWriter();
-                out.println("X");
+                chain.doFilter(request,response);
             }
         }
+        else chain.doFilter(request, response);
 
     }
 
